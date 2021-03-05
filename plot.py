@@ -3,7 +3,7 @@ class Plot():
         self.username = input('plot user (enter username): ') 
         self.dates_axis, self.users = self.load_data(json_path)
         try:
-            self.user_interactions = self.users[self.username]
+            self.user_interactions = sorted(self.users[self.username])
         except:
             print(f"No data for {self.username}")
             exit()
@@ -17,7 +17,7 @@ class Plot():
         with open('data.json') as json_file:
             try:
                 data = json.load(json_file)
-                return data["dates"], data["users"]
+                return sorted(data["dates"]), data["users"]
             except:
                 print("Failed to get users info. Try --update to crawl the data ")
                 exit()
