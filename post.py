@@ -115,6 +115,11 @@ class Post():
         }
 
         date = init_date.split()
+
+        #Quick fix 24h -> 12h 
+        if ('at' in date and date[-1].lower() not in ["am", "pm"] ):
+            date.append(" ")
+
         year, month, day = [int(i) for i in str(datetime.now().date()).split(sep='-')] #default is today
         l = len(date)
         #sanity check
