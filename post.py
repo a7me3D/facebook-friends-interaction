@@ -56,10 +56,10 @@ class Post():
 
 
         #generate url that shows all reactors (avoid "see more")
-            url_p1 = url.split("?limit=")[0]
-            url_p2 = "&".join(url.split("?limit=")[1].split("&")[1:])
-            url = url_p1 + "?limit=" + str(self.reaction_count) + "&" + url_p2
-    
+        url_p1 = url.split("?limit=")[0]
+        url_p2 = "&".join(url.split("?limit=")[1].split("&")[1:])
+        url = url_p1 + "?limit=" + str(self.reaction_count) + "&" + url_p2
+
         self.driver.get(url)
         time.sleep(1)
         return True
