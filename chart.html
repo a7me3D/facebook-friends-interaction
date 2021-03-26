@@ -8,15 +8,34 @@
     getData = fetch("data.json")
         .then(response => response.json())
 </script>
+<style>
+   .input-lg{
+    padding: 10px;
+   }
+   form{
+       margin: 20px;
+   }
+   .filter-records{
+    position: absolute;
+    background: #ffffff;
+   }
+   .filter-option{
+    cursor: pointer;
+    padding: 15px 50px 20px 10px;
+    margin: 0;
+   }
+   .filter-option:hover{
+    background-color: #f2f2f2;
+   }
+</style>
 
 <body>
     <form role="form">
         <div class="form-group">
             <input type="input" class="form-control input-lg" id="txt-search" placeholder="Type your search character">
         </div>
+        <div id="filter-records"></div>
     </form>
-    <div id="filter-records"></div>
-    </div>
 
 
     <canvas id="myChart" width="400" height="100"></canvas>
@@ -84,9 +103,12 @@
 
     userQueryNode = (val) => {
         node = document.createElement("p")
+        node.classList.add("filter-option")
         node.innerHTML = val
         node.addEventListener("click", (e) => {
             updatePlot(e.target.innerHTML)
+            $("#txt-search").val(e.target.innerHTML)
+            $('#filter-records').html('')
         })
         return node
     }
@@ -110,6 +132,7 @@
                 });
             })
     });
+
 </script>
 
 </html>
