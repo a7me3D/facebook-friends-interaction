@@ -6,20 +6,15 @@ class Post():
     def __init__(self, post_url, driver):
         self.post_url = post_url
         self.driver = driver
-        #TODO: validate post url
         self.driver.get(post_url)
+        #collect commentators first call before switching page url
+        self.date = self.get_date()
+        self.commentators = self.get_commentators_list()
         self.reaction_count = self.get_reaction_count(driver)
         if self.reaction_count>0:
-            try:
-                self.date = self.get_date()
-                driver.find_element_by_xpath("//a[contains(@href,'reaction/profile')]").click() # Enter reactions list page
-                self.get_all_users_page()
-                self.users = self.get_users_list()
-            except Exception as e:
-                print(e)
-                print(f"Cannot retrieve info from :{post_url}")
-                self.reaction_count = 0
-                pass
+            #collect reactors
+            self.reactors = self.get_reactors_list()
+            
 
 
     def get_reaction_count(self, driver):
@@ -32,12 +27,28 @@ class Post():
             except:
                 return len(reaction_count[0].text.split("and"))
     
+    def get_commentators_list(self):
+        while True:
+            try:
+                users_comments = self.driver.find_elements_by_xpath("//div/h3/a")
+                for user in users_comments:
+                    yield {"user_name":user.text}
 
-    def get_all_users_page(self):
+                next_comments_page = self.driver.find_element_by_xpath("//*[contains(text(), 'View previous comments…')]")
+                next_comments_page.click()
+            except Exception as e:
+                break
+
+
+    def get_all_reactors_page(self):
+        self.driver.find_element_by_xpath("//a[contains(@href,'reaction/profile')]").click() # Enter reactions list page
         try:
             self.driver.find_element_by_xpath("//a[contains(text(),'All')]").click()
         except:
-            self.driver.find_element_by_xpath("//a[contains(@href,'fetch/?limit')]").click()
+            try:
+                self.driver.find_element_by_xpath("//a[contains(@href,'fetch/?limit')]").click()
+            except:
+                raise Exception("Cant access page")
         
         url =  self.driver.current_url
         #Silly wait until next page (kill me pls)
@@ -64,17 +75,23 @@ class Post():
         time.sleep(1)
         return True
     
-    def get_users_list(self):
-        tree = html.fromstring(self.driver.page_source)
-        users_table_xpath = "//table//li"
+    def get_reactors_list(self):
+        try:
+            self.get_all_reactors_page()
+            tree = html.fromstring(self.driver.page_source)
+            users_table_xpath = "//table//li"
 
-        for user_count in range(0,self.reaction_count):
-            user_xpath = f"{users_table_xpath}{[user_count + 1]}/table/tbody/tr/td[@class]/table/tbody/tr/td[3]//a"
-            try:
-                user = tree.xpath(user_xpath)[0]
-                yield {"user_name":user.text, "user_url":user.attrib['href'] }
-            except:
-                pass #avoid taksir rass
+            for user_count in range(0,self.reaction_count):
+                user_xpath = f"{users_table_xpath}{[user_count + 1]}/table/tbody/tr/td[@class]/table/tbody/tr/td[3]//a"
+                try:
+                    user = tree.xpath(user_xpath)[0]
+                    yield {"user_name":user.text, "user_url":user.attrib['href'] }
+                except:
+                    pass #avoid taksir rass
+        except Exception as e:
+            print(f"Cannot retrieve info from :{self.post_url}")
+            self.reaction_count = 0
+            pass
 
     def get_date(self):
         date=self.driver.find_element_by_xpath("//abbr") 

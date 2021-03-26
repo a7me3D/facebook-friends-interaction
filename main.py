@@ -118,17 +118,28 @@ if "__main__" == __name__ :
         get_urls_and_save(driver, profile_url, nbPages)
         for url in posts:
             post=Post(url, driver)
+            #append commentators
+            post_date = str(post.date) 
+            for commentator in post.commentators:
+                try:
+                    #if user exists
+                    users[commentator["user_name"]]
+                except :
+                    users.update({commentator["user_name"]:[]})
+                
+                users[commentator["user_name"]].append(post_date)
+            
             if post.reaction_count>0:
-                post_date = str(post.date) 
                 dates.add(post_date)
-                for user in post.users:
+                #append reactors
+                for reactor in post.reactors:
                     try:
                         #if user exists
-                        users[user["user_name"]]
+                        users[reactor["user_name"]]
                     except :
-                        users.update({user["user_name"]:[]})
+                        users.update({reactor["user_name"]:[]})
                     
-                    users[user["user_name"]].append(post_date)
+                    users[reactor["user_name"]].append(post_date)
 
 
         data["dates"] = list(data["dates"]) #Serialize set
