@@ -143,8 +143,8 @@ if "__main__" == __name__ :
 
 
         data["dates"] = list(data["dates"]) #Serialize set
-        with open("data.json", "w") as outfile:  
-            json.dump(data, outfile) 
+        with open("data.json", "w", encoding='utf-8') as outfile:  
+            json.dump(data, outfile, ensure_ascii=False) 
     
     fig=Plot("data.json")
     fig.plot_interactions_over_time()
