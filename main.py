@@ -1,5 +1,7 @@
 from post import Post
 from plot import Plot
+from server import Server
+import threading
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -27,6 +29,8 @@ def setup_driver(dir_driver):
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920x1080")
+    chrome_options.add_argument("--log-level=3")
+
     # chrome_options.add_argument("--headless")
 
     #Add headers
@@ -63,6 +67,7 @@ def signin(driver):
     time.sleep(5)
     if "Log" in driver.title:
         print("Login failed pls check your credentials and retry")
+        driver.close()
         exit()
         return False
 
@@ -112,8 +117,9 @@ if "__main__" == __name__ :
         print("number of pages should be > 0")
         exit()
 
+    driver = setup_driver(DRIVER_DIR)
+    
     if args.update:
-        driver = setup_driver(DRIVER_DIR)
         signin(driver)
         get_urls_and_save(driver, profile_url, nbPages)
         for url in posts:
@@ -145,6 +151,11 @@ if "__main__" == __name__ :
         data["dates"] = list(data["dates"]) #Serialize set
         with open("data.json", "w", encoding='utf-8') as outfile:  
             json.dump(data, outfile, ensure_ascii=False) 
-    
-    fig=Plot("data.json")
-    fig.plot_interactions_over_time()
+
+    server = Server(9000)
+    threading.Thread(target=server.start).start()
+
+    driver.get("http://localhost:9000/chart.html")
+    driver.maximize_window()
+    # fig=Plot("data.json")
+    # fig.plot_interactions_over_time()
