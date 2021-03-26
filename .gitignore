@@ -2,3 +2,4 @@ __pycache__
 postTest.py
 data.json
 chromedriver.exe
+.vscode
