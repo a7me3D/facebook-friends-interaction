@@ -13,7 +13,7 @@ from sys import exit
 from lxml import html
 
 MFACEBOOK_URL="https://m.facebook.com/"
-profile_url="https://mbasic.facebook.com/me"
+profile_url="https://mbasic.facebook.com/manai.elyes"
 
 DRIVER_NAME="chromedriver.exe"
 DRIVER_DIR=os.path.join(os.getcwd(),DRIVER_NAME)
@@ -123,30 +123,32 @@ if "__main__" == __name__ :
         signin(driver)
         get_urls_and_save(driver, profile_url, nbPages)
         for url in posts:
-            post=Post(url, driver)
-            #append commentators
-            post_date = str(post.date) 
-            for commentator in post.commentators:
-                try:
-                    #if user exists
-                    users[commentator["user_name"]]
-                except :
-                    users.update({commentator["user_name"]:[]})
-                
-                users[commentator["user_name"]].append(post_date)
-            
-            if post.reaction_count>0:
-                dates.add(post_date)
-                #append reactors
-                for reactor in post.reactors:
+            try:
+                post=Post(url, driver)
+                #append commentators
+                post_date = str(post.date) 
+                for commentator in post.commentators:
                     try:
                         #if user exists
-                        users[reactor["user_name"]]
+                        users[commentator["user_name"]]
                     except :
-                        users.update({reactor["user_name"]:[]})
+                        users.update({commentator["user_name"]:[]})
                     
-                    users[reactor["user_name"]].append(post_date)
-
+                    users[commentator["user_name"]].append(post_date)
+                
+                if post.reaction_count>0:
+                    dates.add(post_date)
+                    #append reactors
+                    for reactor in post.reactors:
+                        try:
+                            #if user exists
+                            users[reactor["user_name"]]
+                        except :
+                            users.update({reactor["user_name"]:[]})
+                        
+                        users[reactor["user_name"]].append(post_date)
+            except:
+                pass
 
         data["dates"] = list(data["dates"]) #Serialize set
         with open("data.json", "w", encoding='utf-8') as outfile:  
