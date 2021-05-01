@@ -3,3 +3,6 @@ postTest.py
 data.json
 chromedriver.exe
 .vscode
+specs.spec
+build
+dist
