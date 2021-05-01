@@ -124,7 +124,8 @@
         getData
             .then(data => {
                 $.each(Object.keys(data.users), function (key, val) {
-                    if ((val.search(regex) != -1)) {
+                    if (val.search(regex) != -1) {
+                        if (output.childElementCount === 13) return 
                         output.appendChild(userQueryNode(val))
                     }
                     $('#filter-records').html(output);
